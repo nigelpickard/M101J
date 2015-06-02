@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: nl.thebigb:spark-core:1.1.2-fork-u1">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/nl/thebigb/spark-core/1.1.2-fork-u1/spark-core-1.1.2-fork-u1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/nl/thebigb/spark-core/1.1.2-fork-u1/spark-core-1.1.2-fork-u1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/nl/thebigb/spark-core/1.1.2-fork-u1/spark-core-1.1.2-fork-u1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
