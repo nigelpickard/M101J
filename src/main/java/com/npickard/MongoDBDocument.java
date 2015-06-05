@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * Created by npickard on 6/5/2015.
  */
-public class MongoDBDriverApp2 {
+public class MongoDBDocument {
     public static void main(String[] args) {
        Document document = new Document().append("str", "MongoDB, Hello")
                .append("int", 42)
