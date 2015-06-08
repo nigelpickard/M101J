@@ -10,10 +10,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.Arrays.asList;
 
@@ -65,6 +62,16 @@ public class Homework_2_3 {
 
         if (m!=null && m.keySet()!=null){
             System.out.println("The map has a keyset size of " + m.keySet().size());
+
+            //now we can delete each entry
+            Set<Double> keys = m.keySet();
+            for (Double key : keys){
+                Document d = m.get(key);
+                //we can now delete the document
+                System.out.println("We will delete this document:");
+                Helpers.printJson(d);
+                mongoCollection.deleteOne(d);
+            }
         }else{
             System.out.println("The map is null!!!!");
         }
