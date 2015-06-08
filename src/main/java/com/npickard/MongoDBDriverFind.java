@@ -43,7 +43,9 @@ public class MongoDBDriverFind {
 
 
         //runFind(mongoCollection);
-        runFind_With_SimpleFilter(mongoCollection);
+        //runFind_With_SimpleFilter(mongoCollection);
+        //runFind_With_SimpleORFilter(mongoCollection);
+        runFind_With_SimpleANDFilter(mongoCollection);
 
 
     }
@@ -63,8 +65,6 @@ public class MongoDBDriverFind {
     }
 
     private static void runFind_With_SimpleFilter(MongoCollection<Document> mongoCollection) {
-
-
 
         System.out.println("\n\n\nFind with simple one condition filter:");
         Bson filter = new Document("profession","student");
@@ -95,34 +95,28 @@ public class MongoDBDriverFind {
         }
     }
 
+    private static void runFind_With_SimpleORFilter(MongoCollection<Document> mongoCollection) {
 
+        System.out.println("\n\n\nFind with simple OR condition filter:");
+        //Bson filter = new Document("$or", new Document[]{new Document("profession","student"),new Document("profession","retired")});
+        Bson filter = new Document("$or", asList(new Document("profession", "retired"), new Document("age", 25)));
+        List<Document> docs = mongoCollection.find(filter).into(new ArrayList<Document>());
+        for (Document doc : docs) {
+            Helpers.printJson(doc);
+        }
+    }
 
-    //        System.out.print("Find all with interation:");
-//        MongoCursor<Document> cursor = mongoCollection.find().iterator();
-//        try {
-//            while(cursor.hasNext()){
-//                Document doc = cursor.next();
-//                Helpers.printJson(doc);
-//            }
-//        } finally {
-//            cursor.close();
-//        }
-//
-//        System.out.print("Count:");
-//        Long count = mongoCollection.count();
-//        System.out.println("Count: " + count);
+    private static void runFind_With_SimpleANDFilter(MongoCollection<Document> mongoCollection) {
+        //note: not used that much, as we can simply use a multiple filter
 
-//        Document brown = new Document("name", "Brown").append("age", 15).append("profession", "student");
-//        Helpers.printJson(brown);
-//        mongoCollection.insertOne(brown);
-//        Helpers.printJson(brown);
-//
-//        //insert many
-//        Document smith = new Document("name", "Smith").append("age", 30).append("profession", "programmer");
-//        Document jones = new Document("name", "Jones").append("age", 50).append("profession", "hacker");
-//        Helpers.printJson(smith);
-//        Helpers.printJson(jones);
-//        mongoCollection.insertMany(asList(smith, jones));
-//        Helpers.printJson(smith);
-//        Helpers.printJson(jones);
+        System.out.println("\n\n\nFind with simple AND condition filter:");
+        //Bson filter = new Document("$or", new Document[]{new Document("profession","student"),new Document("profession","retired")});
+        Bson filter = new Document("$and", asList(new Document("profession","retired"), new Document("age",41)));
+        List<Document> docs = mongoCollection.find(filter).into(new ArrayList<Document>());
+        for (Document doc : docs) {
+            Helpers.printJson(doc);
+        }
+
+    }
+
 }
