@@ -5,6 +5,7 @@ import com.mongodb.MongoClientOptions;
 import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -12,6 +13,8 @@ import org.bson.types.ObjectId;
 
 import java.util.*;
 
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Sorts.ascending;
 import static java.util.Arrays.asList;
 
 /**
@@ -78,4 +81,30 @@ public class Homework_2_3 {
 
     }
 
+
+
+    private void removeLowest(){
+            MongoClient client = new MongoClient();
+            MongoDatabase numbersDB = client.getDatabase("students");
+            MongoCollection<Document> grades = numbersDB.getCollection("grades");
+
+            MongoCursor<Document> cursor = grades.find(eq("type", "homework"))
+                    .sort(ascending("student_id", "score")).iterator();
+
+            Object studentId = -1;
+            try {
+                while (cursor.hasNext()) {
+                    Document entry = cursor.next();
+                    if (!entry.get("student_id").equals(studentId)) {
+                        System.out.println("Removing: " + entry);
+                        Object id = entry.get("_id");
+                        grades.deleteOne(eq("_id", id));
+
+                    }
+                    studentId = entry.get("student_id");
+                }
+            } finally {
+                cursor.close();
+            }
+        }
 }
