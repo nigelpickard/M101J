@@ -4,8 +4,10 @@ import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 
 import java.util.*;
 
@@ -21,10 +23,9 @@ public class Homework_3_1 {
     public static void main(String[] args) {
         MongoClientOptions mongoClientOptions = MongoClientOptions.builder().connectionsPerHost(10).build();
         MongoClient mongoClient = new MongoClient(new ServerAddress(), mongoClientOptions);
-        MongoDatabase mongoDatabase = mongoClient.getDatabase("school").withReadPreference(ReadPreference.secondary());
+        MongoDatabase mongoDatabase = mongoClient.getDatabase("school"); //.withReadPreference(ReadPreference.secondary());
 
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection("students");
-
 //        //find the data where name is "Verdell Sowinski"
 //        Bson queryFilter = eq("name","Verdell Sowinski");
 //        List<Document> docs = mongoCollection.find(queryFilter).into(new ArrayList<Document>());
@@ -35,43 +36,56 @@ public class Homework_3_1 {
 
         //.append is like an AND  e.g. find all data where name is Verdell Sowinski AND a score they have is less than 25
         Bson sortFilter = new Document("name", -1);
-        List<Document> docs = mongoCollection.find().sort(sortFilter).into(new ArrayList<Document>());
+        List<Document> students = mongoCollection.find().sort(sortFilter).into(new ArrayList<Document>());
 
-        if (docs != null && docs.size() > 0) {
+        if (students != null && students.size() > 0) {
 
-            int maxCount = 100;
-            int count = 0;
+            Iterator<Document> it = students.iterator();
 
-            for (Document doc : docs) {
+            while(it.hasNext()){
+                Document studentInfo = it.next();
 
-                if (count >= maxCount){
-                    break;
-                }
-
-                System.out.println("Name: " + doc.getString("name"));
                 //Helpers.printJson(doc);
                 Double lowestScore = Double.MAX_VALUE;
-                List<Document> scores = (List<Document>)doc.get("scores");
+                Document lowestScoreInfo = null;
+
+                List<Document> scores = (List<Document>)studentInfo.get("scores");
                 if (scores!=null){
                     for (Document score : scores){
                         if ("homework".equalsIgnoreCase(score.getString("type"))){
-                            System.out.println("\tType: " + score.getString("type"));
+                            //System.out.println("\tType: " + score.getString("type"));
                             Double scoreValue = score.getDouble("score");
-                            System.out.println("\tScore: " + scoreValue);
+
+                            //System.out.println("\tScore: " + scoreValue);
                             if (scoreValue!=null){
                                 if (lowestScore.doubleValue()> scoreValue.doubleValue()) {
                                     lowestScore = scoreValue;
+                                    lowestScoreInfo = score;
                                 }
                             }
                         }
                     }
+
+                    if (lowestScoreInfo!=null) {
+                        //delete(mongoCollection, studentInfo.getObjectId("_id"), lowestScoreInfo.getObjectId("score"));
+                        delete(mongoCollection, studentInfo, lowestScoreInfo);
+                    }
                 }
-                System.out.println("Lowest score is " + lowestScore);
-                System.out.println("-----------------------------------\n");
-                count++;
+
+                Helpers.printJson(studentInfo);
             }
         }
-        System.out.println("\n\nCount: " + docs.size());
+        System.out.println("\n\nCount: " + students.size());
+    }
+
+    private static void delete(MongoCollection<Document> collection, Document studentInfo, Document scoreInfo ) {
+
+        //Helpers.printJson(studentInfo);
+        BasicDBObject match = new BasicDBObject("_id", studentInfo.getDouble("_id")); //to match your direct app document
+        //Helpers.printJson(studentInfo);
+        BasicDBObject update = new BasicDBObject("scores", scoreInfo);
+        //Helpers.printJson(update);
+        collection.updateOne(match, new BasicDBObject("$pull", update));
     }
 
 
@@ -81,6 +95,58 @@ public class Homework_3_1 {
 
 
 
+
+
+
+
+//
+//    private static void delete(MongoCollection<Document> collection, Document studentInfo, Document scoreInfo ) {
+//
+//        Document match = studentInfo; //new BasicDBObject();
+//        //match.put( "_id", studentOid );
+//        Document scoreSpec = scoreInfo;
+////        BasicDBObject scoreSpec = new BasicDBObject();
+////        scoreSpec.put( "score", scoreOid );
+////
+//        BasicDBObject update = new BasicDBObject();
+//        update.put( "$pull", new BasicDBObject( "scores", scoreSpec ) );
+//        collection.updateOne( match, update );
+//    }
+
+
+//    private static void delete(MongoCollection<Document> collection, Document studentInfo, Document scoreInfo ) {
+//        Document match = new Document();
+//        match.put( "_id", studentInfo.getObjectId("_id"));
+//        Document scoreSpec = new Document();
+//        scoreSpec.put("score", 5.0);
+//        Document update = new Document();
+//        update.put( "$pull", new Document( "addresses", scoreSpec ) );
+//        collection.updateOne(match, update);
+//
+//        Bson filter =
+//        UpdateResult result = collection.updateOne()
+//    }
+
+//    private static void delete(MongoCollection<Document> collection, ObjectId studentoid, ObjectId scoreoid ) {
+//        BasicDBObject match = new BasicDBObject();
+//        match.put( "_id", studentoid );
+//        BasicDBObject scoreSpec = new BasicDBObject();
+//        scoreSpec.put( "_id", scoreoid );
+//        BasicDBObject update = new BasicDBObject();
+//        update.put( "$pull", new BasicDBObject( "addresses", scoreSpec ) );
+//        collection.updateOne(match, update);
+//    }
+
+
+//    private static void delete( MongoCollection<Document> collection, ObjectId accountoid, ObjectId addressoid ){
+//        BasicDBObject match = new BasicDBObject();
+//        match.put( "_id", accountoid );
+//        BasicDBObject addressSpec = new BasicDBObject();
+//        addressSpec.put( "_id", addressoid );
+//        BasicDBObject update = new BasicDBObject();
+//        update.put( "$pull", new BasicDBObject( "addresses", addressSpec ) );
+//        collection.updateOne(match, update);
+//    }
 
 
 
